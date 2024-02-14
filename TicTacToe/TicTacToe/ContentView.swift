@@ -43,6 +43,10 @@ struct ContentView: View {
                                     print("Human wins")
                                 }
                                 
+                                if checkForDraw(in: moves) {
+                                    print("draw")
+                                }
+                                
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                     let position = determineComputerMovePosition(in: moves)
                                     print("Position for comp try is \(position)")
@@ -89,6 +93,10 @@ struct ContentView: View {
         for pattern in winPatterns where pattern.isSubset(of: playerPositions) { return true }
         
         return false
+    }
+    
+    func checkForDraw(in moves: [Move?]) -> Bool {
+        return moves.compactMap { $0 }.count == 9
     }
 }
 
