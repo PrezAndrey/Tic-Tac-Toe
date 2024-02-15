@@ -16,6 +16,7 @@ struct ContentView: View {
     
     @State private var moves: [Move?] = Array(repeating: nil, count: 9)
     @State private var isGameBoardDisabled: Bool = false
+    @State private var alertItem: AlertItem?
     
     var body: some View {
         GeometryReader { geometry in
@@ -40,11 +41,11 @@ struct ContentView: View {
                                 isGameBoardDisabled = true
                                 
                                 if checkWinCondition(for: .human, in: moves) {
-                                    print("Human wins")
+                                    alertItem = AlertContext.humanWins
                                 }
                                 
                                 if checkForDraw(in: moves) {
-                                    print("draw")
+                                    alertItem = AlertContext.draw
                                 }
                                 
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -54,7 +55,7 @@ struct ContentView: View {
                                     isGameBoardDisabled = false
                                     
                                     if checkWinCondition(for: .computer, in: moves) {
-                                        print("Computer wins")
+                                        alertItem = AlertContext.computerWins
                                     }
                                 }
                             }
@@ -65,6 +66,11 @@ struct ContentView: View {
             }
             .disabled(isGameBoardDisabled)
             .padding()
+            .alert(item: $alertItem) { alertItem in
+                Alert(title: alertItem.title, message: alertItem.message, dismissButton: .default(alertItem.buttonTitle, action: {
+                    resetGame()
+                }))
+            }
         }
     }
     
@@ -75,7 +81,34 @@ struct ContentView: View {
         return !moves.contains(where: { $0?.boardIndex == index})
     }
     
+    
+    // if AI can win it wins
+    // if AI can't win, it blocks
+    // if AI can't block, it takes the middle slot
+    // if AI can't take the middle, it takes a random available slot
     func determineComputerMovePosition(in moves: [Move?]) -> Int  {
+        
+        // if AI can win, it wins
+        let winPatterns: Set<Set<Int>> = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+        
+        let computerMoves = moves.compactMap { $0 }.filter { $0.player == .computer }
+        let computerPositions = Set(computerMoves.map({ $0.boardIndex }))
+        
+        for pattern in winPatterns {
+            let winPositions = pattern.subtracting(computerPositions)
+            
+            if winPositions.count == 1 {
+                let isAvailable = !isSquareOccupied(in: moves, forIndex: winPositions.first!)
+                if isAvailable { return winPositions.first! }
+            }
+        }
+        
+        // if AI can't win, it blocks
+        
+        // if AI can't block, it takes the middle slot
+        
+        // if AI can't take the middle, it takes a random available slot
+        
         var position = Int.random(in: 0..<9)
         while !isSquareOccupied(in: moves, forIndex: position) {
             position = Int.random(in: 0..<9)
@@ -96,7 +129,12 @@ struct ContentView: View {
     }
     
     func checkForDraw(in moves: [Move?]) -> Bool {
-        return moves.compactMap { $0 }.count == 9
+        return moves.compactMap { $0 }.count == 9 && !checkWinCondition(for: .human, in: moves) && !checkWinCondition(for: .computer, in: moves)
+    }
+    
+    func resetGame() {
+        moves = Array(repeating: nil, count: 9)
+
     }
 }
 

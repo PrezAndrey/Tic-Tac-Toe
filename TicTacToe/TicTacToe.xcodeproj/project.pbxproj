@@ -53,11 +53,11 @@
 		55325D912B51DCCD00934B21 /* TicTacToe */ = {
 			isa = PBXGroup;
 			children = (
+				555B5F502B7423D20056AC47 /* Alert.swift */,
 				55325D922B51DCCD00934B21 /* TicTacToeApp.swift */,
 				55325D942B51DCCD00934B21 /* ContentView.swift */,
 				55325D962B51DCCF00934B21 /* Assets.xcassets */,
 				55325D982B51DCCF00934B21 /* Preview Content */,
-				555B5F502B7423D20056AC47 /* Alert.swift */,
 			);
 			path = TicTacToe;
 			sourceTree = "<group>";
