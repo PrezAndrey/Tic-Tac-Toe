@@ -40,6 +40,7 @@ struct ContentView: View {
                                 moves[i] = Move(player: .human, boardIndex: i)
                                 isGameBoardDisabled = true
                                 
+                                
                                 if checkWinCondition(for: .human, in: moves) {
                                     alertItem = AlertContext.humanWins
                                 }
@@ -50,7 +51,8 @@ struct ContentView: View {
                                 
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                     let position = determineComputerMovePosition(in: moves)
-                                    print("Position for comp try is \(position)")
+                                    
+                                    print("Position for computer is \(position)")
                                     moves[position] = Move(player: .computer, boardIndex: position)
                                     isGameBoardDisabled = false
                                     
@@ -104,8 +106,22 @@ struct ContentView: View {
         }
         
         // if AI can't win, it blocks
+        let humanMoves = moves.compactMap { $0 }.filter { $0.player == .human }
+        let humanPositions = Set(humanMoves.map({ $0.boardIndex }))
         
+        for pattern in winPatterns {
+            let winPositions = pattern.subtracting(humanPositions)
+            
+            if winPositions.count == 1 {
+                let isAvailable = !isSquareOccupied(in: moves, forIndex: winPositions.first!)
+                if isAvailable { return winPositions.first! }
+            }
+        }
         // if AI can't block, it takes the middle slot
+        let center = 4
+        if !isSquareOccupied(in: moves, forIndex: 4) {
+            return center
+        }
         
         // if AI can't take the middle, it takes a random available slot
         
